@@ -17,4 +17,5 @@ public class ExchangeHistoryVO {
     private Confirmed confirmed;
     private String exchangeCode;
     private String exchangeManager;
+    private String exchangeCreatedAt;
 }

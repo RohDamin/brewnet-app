@@ -25,17 +25,20 @@
         <result property="superCategory" column="super_category"/>
         <result property="subCategory" column="sub_category"/>
         <result property="quantity" column="quantity"/>
+        <result property="partSumPrice" column="part_sum_price"/>
     </resultMap>
 
     <!-- 본사 반품요청 상세조회 ResultMap -->
     <resultMap id="returningDetailResultMap" type="com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningDetailVO">
         <id property="returningCode" column="return_code" />
+        <result property="franchiseCode" column="franchise_code"/>
         <result property="createdAt" column="created_at"/>
         <result property="franchiseName" column="franchise_name"/>
         <result property="reason" column="reason"/>
         <result property="memberName" column="member_name"/>
         <result property="comment" column="comment"/>
         <result property="explanation" column="explanation"/>
+        <result property="status" column="status"/>
 
         <!-- 반품 물품 리스트 매핑 -->
         <collection property="returningItemList" ofType="com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningItemVO"
@@ -48,10 +51,12 @@
 
     <!-- 본사 반품 결재진행상황 조회 ResultMap-->
     <resultMap id="returningApproverResultMap" type="com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningApproverVO">
+        <result property="approverCode" column="approver_code"/>
         <result property="approverName" column="approver_name"/>
         <result property="position" column="position"/>
         <result property="approval" column="approval"/>
         <result property="createdAt" column="created_at"/>
+        <result property="comment" column="comment"/>
     </resultMap>
 
     <!-- 가맹점 반품요청 목록조회 ResultMap -->
@@ -109,6 +114,7 @@
         <result property="confirmed" column="confirmed"/>
         <result property="returningCode" column="return_code"/>
         <result property="returningManager" column="return_manager"/>
+        <result property="returningCreatedAt" column="return_created_at"/>
     </resultMap>
 
     <!-- 타부서 환불요청 조회/검색 ResultMap  -->
@@ -120,12 +126,14 @@
         <result property="confirmed" column="confirmed"/>
         <result property="returningCode" column="return_code"/>
         <result property="returningManager" column="return_manager"/>
+        <result property="returningCreatedAt" column="return_created_at"/>
     </resultMap>
 
     <!-- 타부서 반품요청 상세조회 -->
     <resultMap id="ReturningHistoryDetailResultMap" type="com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningHistoryDetailVO">
         <id property="returningStockHistoryCode" column="return_stock_history_code"/>
         <result property="returningCreatedAt" column="return_created_at"/>
+        <result property="returningCode" column="return_code"/>
         <result property="franchiseName" column="franchise_name"/>
         <result property="reason" column="reason"/>
         <result property="returningManager" column="return_manager"/>
@@ -133,6 +141,7 @@
         <result property="createdAt" column="created_at"/>
         <result property="status" column="status"/>
         <result property="manager" column="manager"/>
+        <result property="confirmed" column="confirmed"/>
 
         <!-- 타부서 반품처리완료내역 물품 리스트 매핑 -->
         <collection property="returningHistoryItemList" ofType="com.varc.brewnetapp.domain.returning.query.aggregate.vo.ReturningHistoryItemVO"
@@ -152,6 +161,7 @@
     <!-- 타부서 환불요청 상세조회 -->
     <resultMap id="RefundHistoryDetailResultMap" type="com.varc.brewnetapp.domain.returning.query.aggregate.vo.RefundHistoryDetailVO">
         <id property="returningRefundHistoryCode" column="return_refund_history_code"/>
+        <result property="returningCode" column="return_code"/>
         <result property="returningCreatedAt" column="return_created_at"/>
         <result property="franchiseName" column="franchise_name"/>
         <result property="reason" column="reason"/>
@@ -160,6 +170,7 @@
         <result property="createdAt" column="created_at"/>
         <result property="status" column="status"/>
         <result property="manager" column="manager"/>
+        <result property="confirmed" column="confirmed"/>
 
         <!-- 타부서 환불처리완료내역 물품 리스트 매핑 -->
         <collection property="refundHistoryItemList" ofType="com.varc.brewnetapp.domain.returning.query.aggregate.vo.RefundHistoryItemVO"
@@ -257,7 +268,7 @@
         JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
         JOIN tbl_return_item D ON A.return_code = D.return_code
         JOIN tbl_item E ON D.item_code = E.item_code
-        JOIN tbl_member F ON A.member_code = F.member_code
+        LEFT JOIN tbl_member F ON A.member_code = F.member_code
         JOIN tbl_return_status_history G ON A.return_code = G.return_code
         JOIN (
         SELECT return_code, MAX(created_at) AS max_created_at
@@ -359,7 +370,7 @@
         JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
         JOIN tbl_return_item D ON A.return_code = D.return_code
         JOIN tbl_item E ON D.item_code = E.item_code
-        JOIN tbl_member F ON A.member_code = F.member_code
+        LEFT JOIN tbl_member F ON A.member_code = F.member_code
         JOIN tbl_return_status_history G ON A.return_code = G.return_code
         JOIN (
         SELECT return_code, MAX(created_at) AS max_created_at
@@ -402,7 +413,7 @@
         JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
         JOIN tbl_return_item D ON A.return_code = D.return_code
         JOIN tbl_item E ON D.item_code = E.item_code
-        JOIN tbl_member F ON A.member_code = F.member_code
+        LEFT JOIN tbl_member F ON A.member_code = F.member_code
         JOIN tbl_return_status_history G ON A.return_code = G.return_code
         JOIN (
         SELECT return_code, MAX(created_at) AS max_created_at
@@ -436,16 +447,24 @@
     <select id="selectReturningDetailBy" resultMap="returningDetailResultMap">
         SELECT
         A.return_code
+        , C.franchise_code
         , A.created_at
         , C.franchise_name
         , A.reason
         , D.name AS member_name
         , A.comment
         , A.explanation
+        , E.status
         FROM tbl_return A
         JOIN tbl_order B ON A.order_code = B.order_code
         JOIN tbl_franchise C ON B.franchise_code = C.franchise_code
         LEFT JOIN tbl_member D ON A.member_code = D.member_code
+        JOIN tbl_return_status_history E ON A.return_code = E.return_code
+        JOIN (
+        SELECT return_code, MAX(created_at) AS max_created_at
+        FROM tbl_return_status_history
+        GROUP BY return_code
+        ) latest_status ON A.return_code = latest_status.return_code AND E.created_at = latest_status.max_created_at
         WHERE A.return_code = #{ returningCode };
     </select>
 
@@ -465,11 +484,15 @@
         , C.name AS sub_category
         , D.name AS super_category
         , A.quantity
+        , G.part_sum_price
         FROM tbl_return_item A
         JOIN tbl_item B ON A.item_code = B.item_code
         JOIN tbl_sub_category C ON B.category_code = C.sub_category_code
         JOIN tbl_super_category D ON C.super_category_code = D.super_category_code
-        WHERE A.return_code = #{ returningCode };
+        JOIN tbl_return E ON A.return_code = E.return_code
+        JOIN tbl_order F ON E.order_code = F.order_code
+        JOIN tbl_order_item G ON F.order_code = G.order_code and A.item_code = G.item_code
+        WHERE A.return_code = #{ returningCode }
     </select>
 
 
@@ -477,7 +500,8 @@
     <!-- (본사)반품상세보기 페이지 - '결재진행상황' 버튼 클릭 시 사용 -->
     <select id="selectReturningApproverBy" resultMap="returningApproverResultMap">
         SELECT
-        B.name AS approver_name
+          B.member_code AS approver_code
+        , B.name AS approver_name
         , C.name AS position
         , A.approved AS approval
         , A.created_at
@@ -539,6 +563,7 @@
         , A.confirmed
         , A.return_code
         , C.name AS return_manager
+        , B.created_at AS return_created_at
         FROM tbl_return_stock_history A
         JOIN tbl_return B ON A.return_code = B.return_code
         JOIN tbl_member C ON B.member_code = C.member_code
@@ -569,6 +594,7 @@
     <select id="selectReturningHistoryDetailBy" resultMap="ReturningHistoryDetailResultMap">
         SELECT
              A.return_stock_history_code
+            , B.return_code
             , B.created_at AS return_created_at
             , D.franchise_name
             , B.reason
@@ -577,6 +603,7 @@
             , A.created_at
             , A.status
             , A.manager
+            , A.confirmed
          FROM tbl_return_stock_history A
               JOIN tbl_return B ON A.return_code = B.return_code
               JOIN tbl_order C ON B.order_code = C.order_code
@@ -649,6 +676,7 @@
         , A.confirmed
         , A.return_code
         , C.name AS return_manager
+        , B.created_at AS return_created_at
         FROM tbl_return_refund_history A
         JOIN tbl_return B ON A.return_code = B.return_code
         JOIN tbl_member C ON B.member_code = C.member_code
@@ -679,6 +707,7 @@
     <select id="selectRefundHistoryDetailBy" resultMap="RefundHistoryDetailResultMap">
         SELECT
             A.return_refund_history_code
+            , B.return_code
             , B.created_at AS return_created_at
             , D.franchise_name
             , B.reason
@@ -687,6 +716,7 @@
             , A.created_at
             , A.status
             , A.manager
+            , A.confirmed
          FROM tbl_return_refund_history A
               JOIN tbl_return B ON A.return_code = B.return_code
               JOIN tbl_order C ON B.order_code = C.order_code
@@ -897,7 +927,7 @@
         JOIN tbl_order C ON B.order_code = C.order_code
         JOIN tbl_order_item D ON C.order_code = D.order_code
         JOIN tbl_item E ON A.item_code = E.item_code
-        WHERE A.return_code = #{ returningCode };
+        WHERE A.return_code = #{ returningCode } AND A.item_code = D.item_code;
     </select>
 
     <!-- 가맹점 반품내역 상태조회 쿼리 -->

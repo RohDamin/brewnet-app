@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class ReturningApproverVO {
+    private int approverCode;
     private String approverName;        // 결재자(기안자)
     private Position position;          // 직급
     private Approval approval;          // 결재 처리 상태

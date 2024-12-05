@@ -6,7 +6,13 @@ import com.varc.brewnetapp.domain.item.query.mapper.ItemMapper;
 import com.varc.brewnetapp.domain.item.query.mapper.MandatoryPurchaseMapper;
 import com.varc.brewnetapp.domain.member.query.dto.MemberDTO;
 import com.varc.brewnetapp.exception.EmptyDataException;
+
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.TimeZone;
+
+import com.varc.brewnetapp.utility.time.Formatter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -14,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service(value = "queryItemService")
 public class ItemServiceImpl implements ItemService {
     private final ItemMapper itemMapper;
@@ -77,8 +84,15 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public List<MustBuyItemDTO> getMustBuyItemsBy() {
-        return mandatoryPurchaseMapper.getMandatoryPurchaseList();
+    public List<MustBuyItemDTO> getMustBuyItemsForHQ() {
+        return mandatoryPurchaseMapper.getMandatoryPurchaseListForHq();
+    }
+
+    @Override
+    @Transactional
+    public List<MustBuyItemDTO> getMustBuyItemsForFranchise() {
+        log.debug("getMustBuyItemsForFranchise called");
+        return mandatoryPurchaseMapper.getMandatoryPurchaseListForFranchise(LocalDateTime.now());
     }
 
     @Override

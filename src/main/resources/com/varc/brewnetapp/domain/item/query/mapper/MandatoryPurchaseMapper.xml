@@ -10,21 +10,48 @@
         <result property="createdAt" column="CREATED_AT"/>
         <result property="active" column="ACTIVE"/>
         <result property="itemCode" column="ITEM_CODE"/>
+        <result property="itemName" column="ITEM_NAME"/>
         <result property="dueDate" column="DUE_DATE"/>
         <result property="memberCode" column="MEMBER_CODE"/>
     </resultMap>
 
-    <select id="getMandatoryPurchaseList" resultMap="MandatoryPurchaseListForHQ">
+    <resultMap id="MandatoryPurchaseListForFranchise" type="com.varc.brewnetapp.domain.item.query.dto.MustBuyItemDTO">
+        <id property="mandatoryPurchaseCode" column="MANDATORY_PURCHASE_CODE"/>
+        <result property="quantity" column="MIN_QUANTITY"/>
+        <result property="createdAt" column="CREATED_AT"/>
+        <result property="itemCode" column="ITEM_CODE"/>
+        <result property="itemName" column="ITEM_NAME"/>
+        <result property="dueDate" column="DUE_DATE"/>
+        <result property="memberCode" column="MEMBER_CODE"/>
+    </resultMap>
+
+    <select id="getMandatoryPurchaseListForHq" resultMap="MandatoryPurchaseListForHQ">
         SELECT
-             , mp.MANDATORY_PURCHASE_CODE AS MANDATORY_PURCHASE_CODE
+               mp.MANDATORY_PURCHASE_CODE AS MANDATORY_PURCHASE_CODE
              , mp.MIN_QUANTITY AS MIN_QUANTITY
              , mp.CREATED_AT AS CREATED_AT
              , mp.ACTIVE AS ACTIVE
              , mp.ITEM_CODE AS ITEM_CODE
+             , i.NAME AS ITEM_NAME
              , mp.DUE_DATE AS DUE_DATE
              , mp.MEMBER_CODE AS MEMBER_CODE
           FROM tbl_mandatory_purchase mp
+          LEFT JOIN tbl_item i ON mp.ITEM_CODE = i.ITEM_CODE
+    </select>
+    <select id="getMandatoryPurchaseListForFranchise" resultMap="MandatoryPurchaseListForFranchise">
+        SELECT
+               mp.MANDATORY_PURCHASE_CODE AS MANDATORY_PURCHASE_CODE
+             , mp.MIN_QUANTITY AS MIN_QUANTITY
+             , mp.CREATED_AT AS CREATED_AT
+             , mp.ITEM_CODE AS ITEM_CODE
+             , i.NAME AS ITEM_NAME
+             , mp.DUE_DATE AS DUE_DATE
+             , mp.MEMBER_CODE AS MEMBER_CODE
+          FROM tbl_mandatory_purchase mp
+          LEFT JOIN tbl_item i ON mp.ITEM_CODE = i.ITEM_CODE
          WHERE mp.ACTIVE = 1
+           AND i.ACTIVE = 1
+           AND mp.DUE_DATE >= #{currentTime}
     </select>
 
 </mapper>

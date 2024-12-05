@@ -26,7 +26,7 @@ public class Order {
     private LocalDateTime createdAt;
 
     @Column(name = "active", nullable = false)
-    private boolean active = true;
+    private boolean active;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "approval_status", nullable = false)

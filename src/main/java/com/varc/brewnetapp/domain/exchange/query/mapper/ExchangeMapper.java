@@ -56,4 +56,6 @@ public interface ExchangeMapper {
     List<Integer> selectAvailableExchangeBy(String loginId);
 
     List<FranExchangeItemVO> selectAvailableExchangeItemBy(int orderCode);
+
+    int selectSearchExchangeListCnt(String searchFilter, String searchWord, String startDate, String endDate);
 }

@@ -81,7 +81,7 @@ public class ExchangeServiceImpl implements ExchangeService {
 
 
         // 전체 데이터 개수 조회
-        int count = exchangeMapper.selectExchangeListCnt();
+        int count = exchangeMapper.selectSearchExchangeListCnt(searchFilter, searchWord, startDate, endDate);
 
         // PageImpl 객체로 감싸서 반환
         return new PageImpl<>(exchangeList, page, count);

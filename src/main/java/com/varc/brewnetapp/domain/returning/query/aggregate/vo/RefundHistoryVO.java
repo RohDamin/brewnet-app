@@ -17,4 +17,5 @@ public class RefundHistoryVO {
     private Confirmed confirmed;
     private String returningCode;
     private String returningManager;
+    private String returningCreatedAt;
 }

@@ -13,4 +13,5 @@ public class ExchangeItemVO {
     private String superCategory;   // 상위 카테고리
     private String subCategory;     // 하위 카테고리
     private int quantity;           // 교환수량
+    private int partSumPrice;
 }

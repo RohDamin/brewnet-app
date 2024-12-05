@@ -321,6 +321,7 @@ public class ReturningServiceImpl implements ReturningService {
             returningApprover = returningApprover.toBuilder()
                     .approved(Approval.APPROVED)
                     .createdAt(String.valueOf(LocalDateTime.now()))
+                    .comment(returningApproveReqVO.getComment())
                     .build();
             returningApproverRepository.save(returningApprover);
 
@@ -339,6 +340,7 @@ public class ReturningServiceImpl implements ReturningService {
             returningApprover = returningApprover.toBuilder()
                     .approved(Approval.REJECTED)
                     .createdAt(String.valueOf(LocalDateTime.now()))
+                    .comment(returningApproveReqVO.getComment())
                     .build();
             returningApproverRepository.save(returningApprover);
         } else {
@@ -492,7 +494,7 @@ public class ReturningServiceImpl implements ReturningService {
          * 반품 전체 완료(반품&환불)인 경우 변하는 상태값:
          * [1] 반품상태                   - tbl_return_status_history : status = COMPLETED (내역 추가됨)
          * [2] 반품완료된 상품의 재고        - tbl_stock : available_stock 추가 (가용재고 추가됨)
-         * [3] 반품/교환요청 가능여부        - tbl_order_item : available = AVAILABLE
+         * [3] 반품/교환요청 가능여부        - tbl_order_item : available = AVAILABLE -> XXXXX
          * */
 
         /*
@@ -539,16 +541,16 @@ public class ReturningServiceImpl implements ReturningService {
         }
 
 
-        // 4. 주문 별 상품(tbl_order_item) 테이블 반품/교환요청 가능여부(available) AVAILABLE 변경
-        List<ExOrderItem> exOrderItemList = exOrderItemRepository.findByOrderItemCode_orderCode(returningStockHistory.getReturning().getOrder().getOrderCode())
-                .orElseThrow(() -> new OrderNotFound("완료 처리와 연관된 주문 별 상품 내역을 찾을 수 없습니다."));
-        for (
-                ExOrderItem exOrderItem : exOrderItemList) {
-            exOrderItem = exOrderItem.toBuilder()
-                    .available(Available.AVAILABLE)
-                    .build();
-            exOrderItemRepository.save(exOrderItem);
-        }
+//        // 4. 주문 별 상품(tbl_order_item) 테이블 반품/교환요청 가능여부(available) AVAILABLE 변경
+//        List<ExOrderItem> exOrderItemList = exOrderItemRepository.findByOrderItemCode_orderCode(returningStockHistory.getReturning().getOrder().getOrderCode())
+//                .orElseThrow(() -> new OrderNotFound("완료 처리와 연관된 주문 별 상품 내역을 찾을 수 없습니다."));
+//        for (
+//                ExOrderItem exOrderItem : exOrderItemList) {
+//            exOrderItem = exOrderItem.toBuilder()
+//                    .available(Available.AVAILABLE)
+//                    .build();
+//            exOrderItemRepository.save(exOrderItem);
+//        }
     }
 
     @Override
@@ -561,7 +563,7 @@ public class ReturningServiceImpl implements ReturningService {
 
         returning = returning.toBuilder()
                 .drafterApproved(DrafterApproved.APPROVE)               // [1] 기안자의 반품 승인 여부
-//                    .approvalStatus(Approval.UNCONFIRMED)                // [2] 반품 결재 상태 (변화 X)
+                .approvalStatus(Approval.UNCONFIRMED)                   // [2] 반품 결재 상태 (CANCELED 인 경우 UNCONFIRMED로 변경)
                 .memberCode(member)                                     // 기안자 등록
                 .comment(returningApproveReqVO.getComment())            // 첨언 등록
                 .build();

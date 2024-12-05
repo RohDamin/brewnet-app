@@ -14,7 +14,8 @@ public interface ItemService {
 
     Page<ItemDTO> findHqItemList(Pageable page, String itemName, String itemCode, String sort, String categoryCode, String correspondentCode);
 
-    List<MustBuyItemDTO> getMustBuyItemsBy();
+    List<MustBuyItemDTO> getMustBuyItemsForHQ();
+    List<MustBuyItemDTO> getMustBuyItemsForFranchise();
 
     ItemDTO findItem(int itemCode);
 }

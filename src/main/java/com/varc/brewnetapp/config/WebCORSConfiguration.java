@@ -16,7 +16,9 @@ public class WebCORSConfiguration {
         configuration.setAllowCredentials(true);
         configuration.setAllowedOrigins(
                 List.of(
-                        "http://localhost:5173"
+                        "http://localhost:5173",
+                        "http://www.brewnet.store",
+                        "http://localhost:8080"
                 )
         );
         configuration.setAllowedMethods(List.of("*"));
