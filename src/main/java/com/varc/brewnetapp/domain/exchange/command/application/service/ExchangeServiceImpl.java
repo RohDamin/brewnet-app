@@ -83,7 +83,6 @@ public class ExchangeServiceImpl implements ExchangeService {
 
             exchangeRepository.save(exchange);
 
-
             for (ExchangeReqItemVO reqItem : exchangeReqVO.getExchangeItemList()) {
                 // 3. 주문 별 상품 - 반품/교환요청 가능여부 변경
                 // 복합키 객체 생성
@@ -118,7 +117,6 @@ public class ExchangeServiceImpl implements ExchangeService {
                         .build();
 
                 exchangeItemRepository.save(exchangeItem);
-
             }
 
             // 5. 교환상태이력 저장
@@ -134,7 +132,6 @@ public class ExchangeServiceImpl implements ExchangeService {
 
                 exchangeImgRepository.save(exchangeImg);
             }
-
 
             // 7. 교환코드(exchangeCode) 리턴 - 프론트엔드 상세페이지 이동 위해
             return exchange.getExchangeCode();
