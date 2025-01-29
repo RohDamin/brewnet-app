@@ -1,9 +1,19 @@
 package com.varc.brewnetapp.domain.delivery.command.application.service;
 
 
+import com.varc.brewnetapp.common.domain.order.Available;
 import com.varc.brewnetapp.domain.delivery.command.application.dto.CreateDeliveryStatusRequestDTO;
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.DeliveryKind;
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.DeliveryStatus;
+import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DelExStock;
+import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DelExStock.ConfirmationStatus;
+import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DelExStockItem;
+import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DelReStock;
+import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DelReStock.StockStatus;
+import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DelReStockItem;
+import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DelRefund;
+import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DelRefund.RefundStatus;
+import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DelRefundItem;
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DeliveryExchange;
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DeliveryExchangeStatusHistory;
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DeliveryExchangeStatusHistory.ExchangeStatus;
@@ -12,6 +22,12 @@ import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.Deliv
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DeliveryReturn;
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DeliveryReturnStatusHistory;
 import com.varc.brewnetapp.domain.delivery.command.domain.aggregate.entity.DeliveryReturnStatusHistory.ReturnStatus;
+import com.varc.brewnetapp.domain.delivery.command.domain.repository.DelExStockItemRepository;
+import com.varc.brewnetapp.domain.delivery.command.domain.repository.DelExStockRepository;
+import com.varc.brewnetapp.domain.delivery.command.domain.repository.DelReStockItemRepository;
+import com.varc.brewnetapp.domain.delivery.command.domain.repository.DelReStockRepository;
+import com.varc.brewnetapp.domain.delivery.command.domain.repository.DelRefundItemRepository;
+import com.varc.brewnetapp.domain.delivery.command.domain.repository.DelRefundRepository;
 import com.varc.brewnetapp.domain.delivery.command.domain.repository.DeliveryExchangeRepository;
 import com.varc.brewnetapp.domain.delivery.command.domain.repository.DeliveryExchangeStatusHistoryRepository;
 import com.varc.brewnetapp.domain.delivery.command.domain.repository.DeliveryOrderRepository;
@@ -27,6 +43,8 @@ import com.varc.brewnetapp.domain.order.command.domain.aggregate.entity.Order;
 import com.varc.brewnetapp.domain.order.command.domain.aggregate.entity.OrderItem;
 import com.varc.brewnetapp.domain.order.command.domain.repository.OrderItemRepository;
 import com.varc.brewnetapp.domain.order.command.domain.repository.OrderRepository;
+import com.varc.brewnetapp.domain.returning.command.domain.aggregate.entity.ReturningItem;
+import com.varc.brewnetapp.domain.returning.command.domain.repository.ReturningItemRepository;
 import com.varc.brewnetapp.domain.storage.command.domain.aggregate.Stock;
 import com.varc.brewnetapp.domain.storage.command.domain.repository.StockRepository;
 import com.varc.brewnetapp.exception.DuplicateException;
@@ -56,6 +74,13 @@ public class DeliveryServiceImpl implements DeliveryService {
     private final DeliveryReturnRepository deliveryReturnRepository;
     private final JwtUtil jwtUtil;
     private final MemberRepository memberRepository;
+    private final DelExStockRepository delExStockRepository;
+    private final DelExStockItemRepository delExStockItemRepository;
+    private final DelRefundRepository delRefundRepository;
+    private final DelRefundItemRepository delRefundItemRepository;
+    private final DelReStockRepository delReStockRepository;
+    private final DelReStockItemRepository delReStockItemRepository;
+    private final ReturningItemRepository returningItemRepository;
 
     @Autowired
     public DeliveryServiceImpl(
@@ -67,7 +92,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         DeliveryOrderRepository deliveryOrderRepository,
         DeliveryExchangeRepository deliveryExchangeRepository,
         DeliveryReturnRepository deliveryReturnRepository, JwtUtil jwtUtil,
-        MemberRepository memberRepository) {
+        MemberRepository memberRepository, DelExStockRepository delExStockRepository,
+        DelExStockItemRepository delExStockItemRepository, DelRefundRepository delRefundRepository,
+        DelRefundItemRepository delRefundItemRepository, DelReStockRepository delReStockRepository,
+        DelReStockItemRepository delReStockItemRepository,
+        ReturningItemRepository returningItemRepository) {
         this.deliveryOrderStatusHistoryRepository = deliveryOrderStatusHistoryRepository;
         this.deliveryExchangeStatusHistoryRepository = deliveryExchangeStatusHistoryRepository;
         this.deliveryReturnStatusHistoryRepository = deliveryReturnStatusHistoryRepository;
@@ -79,7 +108,17 @@ public class DeliveryServiceImpl implements DeliveryService {
         this.deliveryReturnRepository = deliveryReturnRepository;
         this.jwtUtil = jwtUtil;
         this.memberRepository = memberRepository;
+        this.delExStockRepository = delExStockRepository;
+        this.delExStockItemRepository = delExStockItemRepository;
+        this.delRefundRepository = delRefundRepository;
+        this.delRefundItemRepository = delRefundItemRepository;
+        this.delReStockRepository = delReStockRepository;
+        this.delReStockItemRepository = delReStockItemRepository;
+        this.returningItemRepository = returningItemRepository;
     }
+
+
+
 
     @Transactional
     @Override
@@ -93,8 +132,19 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(createDeliveryStatusRequestDTO.getDeliveryKind().equals(DeliveryKind.ORDER)){
             DeliveryOrderStatusHistory.OrderStatus status = null;
 
-            if(createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPED)))
+            if(createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPED))){
                 status = DeliveryOrderStatusHistory.OrderStatus.SHIPPED;
+
+                List<OrderItem> orderItems = orderItemRepository.findByOrderItemCode_OrderCode(createDeliveryStatusRequestDTO.getCode());
+
+                if(orderItems.isEmpty() || orderItems == null)
+                    throw new EmptyDataException("주문 건에 대한 상품이 없습니다");
+
+                for (OrderItem orderItem : orderItems) {
+                    orderItem.setAvailable(Available.AVAILABLE);
+                    orderItemRepository.save(orderItem);
+                }
+            }
             else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPING))){
                 status = DeliveryOrderStatusHistory.OrderStatus.SHIPPING;
                 DeliveryOrder order = deliveryOrderRepository.findById(createDeliveryStatusRequestDTO.getCode())
@@ -145,13 +195,30 @@ public class DeliveryServiceImpl implements DeliveryService {
 
             if(createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPED))){
                 status = ExchangeStatus.SHIPPED;
+                List<ExchangeItem> exchangeItemList = exchangeItemRepository.findByExchangeItemCode_ExchangeCode(createDeliveryStatusRequestDTO.getCode());
 
-                DeliveryExchange exchange = deliveryExchangeRepository.findById(createDeliveryStatusRequestDTO.getCode())
-                    .orElseThrow(() -> new InvalidDataException("교환 코드를 잘못 입력했습니다"));
+                DelExStock delExStock = DelExStock.builder()
+                    .exchangeCode(createDeliveryStatusRequestDTO.getCode())
+                    .status(DelExStock.ExchangeStatus.TOTAL_INBOUND)
+                    .manager("김민준")
+                    .comment("전체입고입니다")
+                    .confirmed(DelExStock.ConfirmationStatus.UNCONFIRMED)
+                    .createdAt(LocalDateTime.now())
+                    .active(true)
+                    .build();
 
-                exchange.setDeliveryCode(null);
+                DelExStock newDelExStock = delExStockRepository.save(delExStock);
 
-                deliveryExchangeRepository.save(exchange);
+                for(ExchangeItem exchangeItem : exchangeItemList){
+                    DelExStockItem delExStockItem = DelExStockItem.builder()
+                        .itemCode(exchangeItem.getExchangeItemCode().getItemCode())
+                        .quantity(exchangeItem.getQuantity())
+                        .restockQuantity(exchangeItem.getQuantity())
+                        .exchangeStockHistoryCode(newDelExStock.getExchangeStockHistoryCode()).build();
+
+                    delExStockItemRepository.save(delExStockItem);
+                }
+
             }
             else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.SHIPPING))){
                 status = ExchangeStatus.SHIPPING;
@@ -178,10 +245,27 @@ public class DeliveryServiceImpl implements DeliveryService {
                     stockRepository.save(stock);
                 }
             }
-            else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.PICKED)))
+            else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.PICKED))){
                 status = ExchangeStatus.PICKED;
-            else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.PICKING)))
+
+                DeliveryExchange exchange = deliveryExchangeRepository.findById(createDeliveryStatusRequestDTO.getCode())
+                    .orElseThrow(() -> new InvalidDataException("교환 코드를 잘못 입력했습니다"));
+
+                exchange.setDeliveryCode(null);
+
+                deliveryExchangeRepository.save(exchange);
+            }
+            else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.PICKING))){
                 status = ExchangeStatus.PICKING;
+
+                DeliveryExchange exchange = deliveryExchangeRepository.findById(createDeliveryStatusRequestDTO.getCode())
+                    .orElseThrow(() -> new InvalidDataException("교환 코드를 잘못 입력했습니다"));
+
+                exchange.setDeliveryCode(member.getMemberCode());
+
+                deliveryExchangeRepository.save(exchange);
+            }
+
             else
                 throw new InvalidDataException("잘못된 상태값을 입력하셨습니다");
 
@@ -206,8 +290,54 @@ public class DeliveryServiceImpl implements DeliveryService {
 
             ReturnStatus status = null;
 
-            if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.PICKED)))
+            if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.PICKED))){
+                DelReStock delReStock = DelReStock.builder()
+                    .status(StockStatus.TOTAL_INBOUND)
+                    .manager("김민준")
+                    .comment("전체 입고입니다")
+                    .confirmed(DelReStock.ConfirmationStatus.UNCONFIRMED)
+                    .createdAt(LocalDateTime.now())
+                    .active(true)
+                    .returnCode(createDeliveryStatusRequestDTO.getCode())
+                    .build();
+
+                DelReStock newDelReStock = delReStockRepository.save(delReStock);
+
+                DelRefund delRefund = DelRefund.builder()
+                    .status(DelRefund.RefundStatus.TOTAL_REFUND)
+                    .createdAt(LocalDateTime.now())
+                    .manager("이수희")
+                    .comment("전체 환불입니다")
+                    .active(true)
+                    .confirmed(DelRefund.ConfirmationStatus.UNCONFIRMED)
+                    .returnCode(createDeliveryStatusRequestDTO.getCode())
+                    .build();
+
+                DelRefund newDelRefund = delRefundRepository.save(delRefund);
+
+                List<ReturningItem> returningItemList = returningItemRepository.findByReturningItemCode_ReturningCode(createDeliveryStatusRequestDTO.getCode());
+
+                for (ReturningItem returningItem : returningItemList){
+                    DelRefundItem delRefundItem = DelRefundItem.builder()
+                        .completed(true)
+                        .itemCode(returningItem.getReturningItemCode().getItemCode())
+                        .returnRefundHistoryCode(newDelRefund.getReturnRefundHistoryCode())
+                        .build();
+
+                    DelReStockItem delReStockItem = DelReStockItem.builder()
+                        .itemCode(returningItem.getReturningItemCode().getItemCode())
+                        .returnStockHistoryCode(newDelReStock.getReturnStockHistoryCode())
+                        .quantity(returningItem.getQuantity())
+                        .restockQuantity(returningItem.getQuantity())
+                        .build();
+
+                    delReStockItemRepository.save(delReStockItem);
+                    delRefundItemRepository.save(delRefundItem);
+                }
+
                 status = ReturnStatus.PICKED;
+            }
+
             else if (createDeliveryStatusRequestDTO.getDeliveryStatus().equals((DeliveryStatus.PICKING))){
                 status = ReturnStatus.PICKING;
 

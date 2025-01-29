@@ -106,14 +106,16 @@ public class StatisticsServiceImpl implements StatisticsService {
         List<SafeStockStatisticsDTO> safeStockStatisticsList = statisticsMapper.selectSafeStock(offset, pageSize);
 
         if(safeStockStatisticsList != null && safeStockStatisticsList.size() > 0){
+
             for(SafeStockStatisticsDTO safeStockStatisticsDTO : safeStockStatisticsList){
                 Integer unApprovedItemCount = statisticsMapper.selectUnApprovedItemCount(safeStockStatisticsDTO.getItemCode());
 
                 safeStockStatisticsDTO.setUnApprovedOrderCount(unApprovedItemCount);
 
-                minPurchaseCount = safeStockStatisticsDTO.getAvailableStock()
-                    - safeStockStatisticsDTO.getSafeStock()
-                    - unApprovedItemCount;
+                if(safeStockStatisticsDTO.getAvailableMinusSafeStock() < 0)
+                    minPurchaseCount = -(Math.abs(safeStockStatisticsDTO.getAvailableMinusSafeStock()) + unApprovedItemCount);
+                else
+                    minPurchaseCount = safeStockStatisticsDTO.getAvailableMinusSafeStock() - unApprovedItemCount;
 
                 if(minPurchaseCount < 0)
                     safeStockStatisticsDTO.setMinPurchaseCount(minPurchaseCount);

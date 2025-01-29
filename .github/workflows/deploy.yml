@@ -1,0 +1,182 @@
+name: brewnet-backend-service
+
+permissions:
+  contents: read
+  pull-requests: write
+
+on:
+  push:
+    branches:
+      - "deploy"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+        shell: bash
+
+      ##############################################################
+      - name: Install envsubst
+        run: sudo apt-get install -y gettext
+
+      - name: Create application.yml.template
+        run: |
+          mkdir -p src/main/resources
+          cat > src/main/resources/application.yml.template <<EOL
+          server:
+            port: 5000
+            servlet:
+              encoding:
+                charset: UTF-8
+                force: true 
+
+          spring:
+            datasource:
+              driver-class-name: org.mariadb.jdbc.Driver
+              url: jdbc:mariadb://\${RDS_HOSTNAME}:\${RDS_PORT}/\${RDS_DB_NAME}
+              username: \${RDS_USERNAME}
+              password: \${RDS_PASSWORD}
+
+            jpa:
+              generate-ddl: false
+              show-sql: true
+              database: mysql
+              properties:
+                hibernate:
+                  '[format_sql]': true
+
+            data:
+              redis:
+                host: \${REDIS_HOST}
+                port: \${REDIS_PORT}
+
+          logging:
+            level:
+              com:
+                varc:
+                  brewnetapp: INFO
+        
+          cloud:
+            aws:
+              s3:
+                bucket: \${AWS_S3_BUCKET_NAME}
+              stack.auto: false
+              region.static: \${AWS_S3_BUCKET_REGION}
+              credentials:
+                accessKey: \${AWS_S3_ACCESS_KEY}
+                secretKey: \${AWS_S3_SECRET_KEY}
+          
+          token:
+            access:
+              expiration_time: \${JWT_ACCESS_TOKEN_EXPIRATION_TIME}
+            refresh:
+              expiration_time: \${JWT_REFRESH_TOKEN_EXPIRATION_TIME}
+            secret: \${TOKEN_SECRET}
+          
+          mail:
+            host: \${SMTP_MAIL_HOST}
+            port: \${SMTP_MAIL_PORT}
+            username: \${SMTP_MAIL_USERNAME}
+            password: \${SMTP_MAIL_PASSWORD}
+            properties:
+              mail:
+                smtp:
+                  auth: true
+                  starttls:
+                    enable: true
+                    required: true
+                  connectiontimeout: \${SMTP_CONNECTION_TIME_OUT}
+                  timeout: \${SMTP_TIME_OUT}
+                  writetimeout: \${SMTP_WRITE_TIME_OUT}
+            expiration_time: \${SMTP_EXPIRRATION_TIME}
+          EOL
+      - name: Set Yaml
+        run: |
+          envsubst < src/main/resources/application.yml.template > src/main/resources/application.yml
+          echo "Generated application.yml:"
+          cat src/main/resources/application.yml
+        env:
+          RDS_HOSTNAME: ${{ secrets.RDS_HOSTNAME }}
+          RDS_PORT: ${{ secrets.RDS_PORT }}
+          RDS_DB_NAME: ${{ secrets.RDS_DB_NAME }}
+          RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
+          RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
+          REDIS_HOST: ${{ secrets.REDIS_HOST }}
+          REDIS_PORT: ${{ secrets.REDIS_PORT }}
+          AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
+          AWS_S3_BUCKET_REGION: ${{ secrets.AWS_S3_BUCKET_REGION }}
+          AWS_S3_ACCESS_KEY: ${{ secrets.AWS_S3_ACCESS_KEY }}
+          AWS_S3_SECRET_KEY: ${{ secrets.AWS_S3_SECRET_KEY }}
+          JWT_ACCESS_TOKEN_EXPIRATION_TIME: ${{ secrets.JWT_ACCESS_TOKEN_EXPIRATION_TIME }}
+          JWT_REFRESH_TOKEN_EXPIRATION_TIME: ${{ secrets.JWT_REFRESH_TOKEN_EXPIRATION_TIME }}
+          TOKEN_SECRET: ${{ secrets.TOKEN_SECRET }}
+          SMTP_MAIL_HOST: ${{ secrets.SMTP_MAIL_HOST }}
+          SMTP_MAIL_PORT: ${{ secrets.SMTP_MAIL_PORT }}
+          SMTP_MAIL_USERNAME: ${{ secrets.SMTP_MAIL_USERNAME }}
+          SMTP_MAIL_PASSWORD: ${{ secrets.SMTP_MAIL_PASSWORD }}
+          SMTP_CONNECTION_TIME_OUT: ${{ secrets.SMTP_CONNECTION_TIME_OUT }}
+          SMTP_TIME_OUT: ${{ secrets.SMTP_TIME_OUT }}
+          SMTP_WRITE_TIME_OUT: ${{ secrets.SMTP_WRITE_TIME_OUT }}
+          SMTP_EXPIRRATION_TIME: ${{ secrets.SMTP_EXPIRRATION_TIME }}
+
+      - name: Check for Tests
+        run: |
+          if git diff --name-only origin/main HEAD | grep -qvE '(\.xml$|\.yml$|config/)'; then
+            if [ -z "$(find src/test -name '*ServiceTests.java')" ]; then
+              echo "No ServiceTest found, failing the build."
+              exit 1
+            fi
+          else
+            echo "Only configuration files changed, skipping test check."
+          fi
+      ##############################################################
+
+      - name: Build with Gradle
+        run: ./gradlew clean build -x test
+        shell: bash
+
+      - name: Get current time
+        uses: 1466587594/get-current-time@v2
+        id: current-time
+        with:
+          format: YYYY-MM-DDTHH-mm-ss
+          utcOffset: "+09:00"
+
+      - name: Show Current Time
+        run: echo "CurrentTime=${{steps.current-time.outputs.formattedTime}}"
+        shell: bash
+
+      - name: Generate deployment package
+        run: |
+          ./gradlew clean build
+          mkdir -p deploy
+          cp build/libs/*.jar deploy/application.jar
+          cp Procfile deploy/Procfile
+          cp -r .ebextensions deploy/.ebextensions
+          cp -r .platform deploy/.platform
+          cd deploy && zip -r deploy.zip .
+
+      - name: Beanstalk Deploy
+        uses: einaregilsson/beanstalk-deploy@v22
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: Brewnet-backend
+          environment_name: Brewnet-backend-env
+          version_label: github-action-${{steps.current-time.outputs.formattedTime}}
+          region: ap-northeast-2
+          deployment_package: deploy/deploy.zip
+          use_existing_version_if_available: false
+          wait_for_deployment: true
+          wait_for_environment_recovery: 101

@@ -176,7 +176,8 @@ public class OrderServiceImpl implements OrderService {
         int targetManagerMemberCode = orderApproveRequestDTO.getSuperManagerMemberCode();
 
         Order order = orderRepository.findById(orderCode).orElseThrow(() -> new OrderNotFound("Order not found"));
-        List<OrderItem> orderItemList = getOrderItemsByOrderCode(order.getOrderCode());
+//        List<OrderItem> orderItemList = getOrderItemsByOrderCode(order.getOrderCode());
+        List<OrderApprover> orderApprover = orderApprovalRepository.findByOrderApprovalCode_OrderCode(order.getOrderCode());
 
         Integer presentOrderDrafterMemberCode = order.getMemberCode();
         log.debug("order.getMemberCode() - 기존 기안자: {}", presentOrderDrafterMemberCode);
@@ -202,11 +203,23 @@ public class OrderServiceImpl implements OrderService {
         //    - 해당 order_item의 available -> UNAVAILABLE         [DONE]
 
         if (order.getMemberCode() != null) {
-            throw new OrderApprovalAlreadyExist(
-                    "order approval already exist. " +
-                            "already requested by memberCode:" + order.getMemberCode() +
-                            ", orderCode: " + order.getMemberCode()
-            );
+            log.debug("orderApprover: {}", orderApprover);
+            if (orderApprover.isEmpty()) {
+                if (memberCode != order.getMemberCode()) {
+
+                    // TODO: 앞서 결재가 취소된 경우                            [DONE]
+                    //  상신 요청자가 취소한 사람(tbl_order.memberCode)인지 확인   [DONE]
+                    log.debug("memberCode != order.getMemberCode()");
+                    throw new UnauthorizedAccessException("재결재에 대한 권한이 없습니다.");
+                }
+                log.debug("memberCode == order.getMemberCode()");
+            } else {
+                throw new OrderApprovalAlreadyExist(
+                        "order approval already exist. " +
+                                "already requested by memberCode:" + order.getMemberCode() +
+                                ", orderCode: " + order.getMemberCode()
+                );
+            }
         }
 
         orderRepository.save(
@@ -540,7 +553,6 @@ public class OrderServiceImpl implements OrderService {
                 OrderStatusHistory.builder()
                         .status(newStatus)
                         .createdAt(LocalDateTime.now())
-                        .active(true)
                         .orderCode(orderCode)
                         .build()
         );
