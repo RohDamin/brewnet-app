@@ -14,6 +14,7 @@ public class MustBuyItemDTO {
     private String createdAt;
     private Boolean active;
     private Integer itemCode;
+    private String itemName;
     private String dueDate;
     private Integer memberCode;
 }

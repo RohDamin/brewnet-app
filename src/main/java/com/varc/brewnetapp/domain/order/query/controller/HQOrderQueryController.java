@@ -30,7 +30,10 @@ public class HQOrderQueryController {
     }
 
     @GetMapping("/list")
-    @Operation(summary = "본사의 주문 리스트 조회")
+    @Operation(
+            summary = "본사의 주문 리스트 조회",
+            description = "sort: createdAtDesc, createdAtAsc, sumPriceDesc, sumPriceAsc"
+    )
     public ResponseEntity<ResponseMessage<Page<HQOrderDTO>>> getOrderList(
             @PageableDefault(size = 10, page = 0) Pageable pageable,
             @RequestParam(name = "filter", required = false) String filter,
@@ -69,7 +72,10 @@ public class HQOrderQueryController {
     }
 
     @GetMapping("/search")
-    @Operation(summary = "주문 일자(기간) 별로 검색 타입(주문번호, 주문지점, 주문담당자)에 따른 검색")
+    @Operation(
+            summary = "주문 일자(기간) 별로 검색 타입(주문번호, 주문지점, 주문담당자)에 따른 검색",
+            description = "sort: createdAtDesc, createdAtAsc, sumPriceDesc, sumPriceAsc"
+    )
     public ResponseEntity<ResponseMessage<Page<HQOrderDTO>>> getOrderListByHqSearch(
             @PageableDefault(size = 10, page = 0) Pageable pageable,
             @RequestParam(name = "filter", required = false) String filter,
@@ -93,8 +99,10 @@ public class HQOrderQueryController {
     }
 
     @GetMapping("/detail/{orderCode}")
-    @Operation(summary = "주문 코드를 path variable로 활용한 주문 상세 조회" +
-            "cf: doneDate는 orderStatus가 생성된 날짜이며, 가장 최신의 orderStatus만 가져온다.")
+    @Operation(
+            summary = "주문 코드를 path variable로 활용한 주문 상세 조회",
+            description = "cf: doneDate는 orderStatus가 생성된 날짜이며, 가장 최신의 orderStatus만 가져온다."
+    )
     public ResponseEntity<ResponseMessage<OrderDetailForHQDTO>> getOrderInformation(
             @PathVariable("orderCode") Integer orderCode) {
         OrderDetailForHQDTO orderDetailDTO = orderQueryService.getOrderDetailForHqBy(orderCode);

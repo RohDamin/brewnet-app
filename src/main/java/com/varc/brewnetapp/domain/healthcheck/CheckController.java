@@ -1,6 +1,7 @@
 package com.varc.brewnetapp.domain.healthcheck;
 
 import com.varc.brewnetapp.common.ResponseMessage;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,14 +17,25 @@ import java.io.IOException;
 public class CheckController {
 
     private final S3Service s3Service;
+    private final MariadbService mariadbService;
 
-    public CheckController(S3Service s3Service) {
+    public CheckController(
+            S3Service s3Service,
+            MariadbService mariadbService
+    ) {
         this.s3Service = s3Service;
+        this.mariadbService = mariadbService;
     }
 
     @GetMapping
     public String check() {
-        return "Good";
+        return "Server is working good!";
+    }
+
+    @GetMapping("/company")
+    @Operation(summary = "데이터베이스 확인용 API")
+    public String checkDB() {
+        return mariadbService.getCompanyName();
     }
 
     @PostMapping("/images/upload")

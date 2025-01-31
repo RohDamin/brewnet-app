@@ -1,6 +1,5 @@
 spring:
   profiles:
-    active: dev
+    active: prod
   config:
     import: "application-secret.yml"
-

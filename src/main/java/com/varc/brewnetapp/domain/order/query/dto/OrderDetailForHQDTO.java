@@ -13,6 +13,7 @@ import java.util.List;
 public class OrderDetailForHQDTO {
     private int orderCode;
     private String createdAt;
+    private Integer franchiseCode;
     private String franchiseName;
     private String comment;
     private String managerName;

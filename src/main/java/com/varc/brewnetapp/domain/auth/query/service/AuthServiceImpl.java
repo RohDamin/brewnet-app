@@ -31,6 +31,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public UserDetails loadUserByUsername(String loginId) throws UsernameNotFoundException {
         log.debug("loadUserByUsername");
+        log.info("loginId: {}", loginId);
         MemberVO loginMember = authenticationMapper.selectMemberByIdWithAuthorities(loginId);
         log.debug("loginMember: {}", loginMember);
 

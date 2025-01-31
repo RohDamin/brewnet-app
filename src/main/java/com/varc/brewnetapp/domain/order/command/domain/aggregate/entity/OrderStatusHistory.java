@@ -28,7 +28,7 @@ public class OrderStatusHistory {
     private LocalDateTime createdAt;
 
     @Column(name = "active", nullable = false)
-    private boolean active = true;
+    private final boolean active = true;
 
     @Column(name = "order_code", nullable = false)
     private int orderCode;

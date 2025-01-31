@@ -216,6 +216,15 @@ public class PurchaseServiceImpl implements PurchaseService {
         // 발주 품목의 입고예정재고가 발주 수량만큼 증가
         for (LetterOfPurchaseItem item : items) {
             Stock stock = stockRepository.findByStorageCodeAndItemCode(storage.getStorageCode(), item.getItemCode());
+
+            // 창고 생성 이후에 새로 등록된 상품이면 창고별 재고에 추가
+            if (stock == null) {
+                stock = new Stock(storage.getStorageCode(), item.getItemCode(),
+                                    0, 0, item.getQuantity(), LocalDateTime.now(), true);
+                stockRepository.save(stock);
+                continue;
+            }
+
             int inStock = stock.getInStock() + item.getQuantity();
             stock.setInStock(inStock);
         }
@@ -243,7 +252,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                 .orElseThrow(()-> new MemberNotFoundException("존재하지 않는 회원입니다."));
 
         // 결재자가 맞는지 체크
-        if (member.getMemberCode().equals(approver.getMemberCode()))
+        if (!member.getMemberCode().equals(approver.getMemberCode()))
             throw new InvalidDataException("해당 구매품의서의 결재자가 아닙니다.");
 
         // 아직 결재 전인 내역이 맞는지 체크

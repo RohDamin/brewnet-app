@@ -232,7 +232,7 @@
     SELECT
            I.NAME AS ITEM_NAME
          , RI.QUANTITY AS QUANTITY
-      FROM tbl_RETURN R
+      FROM tbl_return R
      INNER JOIN tbl_return_item RI ON RI.RETURN_CODE = R.RETURN_CODE
      INNER JOIN tbl_item I ON RI.ITEM_CODE = I.ITEM_CODE
      WHERE R.RETURN_CODE = #{ code }
