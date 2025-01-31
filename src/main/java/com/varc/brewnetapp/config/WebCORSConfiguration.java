@@ -13,16 +13,18 @@ import java.util.List;
 public class WebCORSConfiguration {
     public List<String> allowedOrigins;
 
-    @Value("${cors.allowed-origins}")
-    public void setAllowedOrigins(List<String> allowedOrigins) {
-        this.allowedOrigins = allowedOrigins;
-    }
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);
-        configuration.setAllowedOrigins(allowedOrigins);
+        configuration.setAllowedOrigins(
+                List.of(
+                        "http://localhost:5173",
+//                        "http://www.brewnet.store",
+                        "http://13.209.24.254",
+                        "http://localhost:8080"
+                )
+        );
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of("*"));
