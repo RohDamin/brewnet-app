@@ -11,13 +11,12 @@ import java.util.List;
 
 @Configuration
 public class WebCORSConfiguration {
-    public List<String> allowedOrigins;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);
-        configuration.setAllowedOrigins(
+        configuration.setAllowedOriginPatterns(
                 List.of(
                         "http://localhost:5173",
 //                        "http://www.brewnet.store",
