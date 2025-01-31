@@ -21,6 +21,7 @@ public class WebCORSConfiguration {
                         "http://localhost:5173",
 //                        "http://www.brewnet.store",
                         "http://13.209.24.254",
+                        "http://13.125.47.153:8080",
                         "http://localhost:8080"
                 )
         );
