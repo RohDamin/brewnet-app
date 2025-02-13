@@ -43,16 +43,16 @@
 [🔗 자세히 보기](https://github.com/beyond-sw-camp/be09-fin-VarietyCrew-BrewNet/wiki/3.-Variety-Crew%EC%9D%98-%EA%B0%9C%EB%B0%9C-%EB%B0%A9%EB%B2%95)
 
 #### Front-end
-|Vue.js|Javascript|HTML|CSS|PrimeVue|Pinia|Fetch API|
-|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-|<img src="https://img.shields.io/badge/Vue.js-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white">|<img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=white">|<img src="https://img.shields.io/badge/HTML-E34F26?style=for-the-badge&logo=html5&logoColor=white">|<img src="https://img.shields.io/badge/CSS-1572B6?style=for-the-badge&logo=css3&logoColor=white">|<img src="https://img.shields.io/badge/PrimeVue-41B883?style=for-the-badge&logo=primevue&logoColor=white">|<img src="https://img.shields.io/badge/Pinia-FFDA44?style=for-the-badge&logo=&logoColor=white">|<img src="https://img.shields.io/badge/Fetch API-221E68?style=for-the-badge&logo=&logoColor=white">|
+|Vue.js|Javascript|HTML|CSS|PrimeVue|Pinia|
+|:--:|:--:|:--:|:--:|:--:|:--:|
+|<img src="https://img.shields.io/badge/Vue.js-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white">|<img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=white">|<img src="https://img.shields.io/badge/HTML-E34F26?style=for-the-badge&logo=html5&logoColor=white">|<img src="https://img.shields.io/badge/CSS-1572B6?style=for-the-badge&logo=css3&logoColor=white">|<img src="https://img.shields.io/badge/PrimeVue-41B883?style=for-the-badge&logo=primevue&logoColor=white">|<img src="https://img.shields.io/badge/Pinia-FFDA44?style=for-the-badge&logo=&logoColor=white">|
 
 <br>
 
 #### Back-end
-|Java|Spring Boot|Spring Security|JWT|OpenAPI|JPA|Mybatis|SSE|SMTP|Redis|
-|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-|<img src="https://img.shields.io/badge/Java-0854C1?style=for-the-badge&logo=&logoColor=white">|<img src="https://img.shields.io/badge/Spring Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">|<img src="https://img.shields.io/badge/Spring Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white">|<img src="https://img.shields.io/badge/JWT-41B883?style=for-the-badge&logo=&logoColor=white">|<img src="https://img.shields.io/badge/Open API-221E68?style=for-the-badge&logo=&logoColor=white">|<img src="https://img.shields.io/badge/JPA-FFDA44?style=for-the-badge&logo=&logoColor=white">|<img src="https://img.shields.io/badge/MyBatis-FF7143?style=for-the-badge&logo=&logoColor=white">|<img src="https://img.shields.io/badge/SSE-7248B9?style=for-the-badge&logo=&logoColor=white">|<img src="https://img.shields.io/badge/SMTP-4285F4?style=for-the-badge&logo=&logoColor=white">|<img src="https://img.shields.io/badge/Redis-FF4438?style=for-the-badge&logo=redis&logoColor=white">|
+|Java|Spring Boot|Spring Security|JWT|JPA|Mybatis|SSE|SMTP|Redis|
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+|<img src="https://img.shields.io/badge/Java-0854C1?style=for-the-badge&logo=&logoColor=white">|<img src="https://img.shields.io/badge/Spring Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">|<img src="https://img.shields.io/badge/Spring Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white">|<img src="https://img.shields.io/badge/JWT-41B883?style=for-the-badge&logo=&logoColor=white">|<img src="https://img.shields.io/badge/JPA-FFDA44?style=for-the-badge&logo=&logoColor=white">|<img src="https://img.shields.io/badge/MyBatis-FF7143?style=for-the-badge&logo=&logoColor=white">|<img src="https://img.shields.io/badge/SSE-7248B9?style=for-the-badge&logo=&logoColor=white">|<img src="https://img.shields.io/badge/SMTP-4285F4?style=for-the-badge&logo=&logoColor=white">|<img src="https://img.shields.io/badge/Redis-FF4438?style=for-the-badge&logo=redis&logoColor=white">|
 
 <br>
 
@@ -64,9 +64,9 @@
 <br>
 
 #### Infra
-|Github-Action|AWS|Elastic Beanstalk|EC2|AMS|ALB|Route53| 
-|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-|<img src="https://img.shields.io/badge/Github actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white">|<img src="https://img.shields.io/badge/AWS-FF9900?style=for-the-badge&logo=amazonwebservices&logoColor=white">|<img src="https://img.shields.io/badge/Elastic Beanstalk-FF9900?style=for-the-badge&logo=&logoColor=white">|<img src="https://img.shields.io/badge/EC2-FF9900?style=for-the-badge&logo=amazonec2&logoColor=white">|<img src="https://img.shields.io/badge/AMS-FF9900?style=for-the-badge&logo=&logoColor=white">|<img src="https://img.shields.io/badge/ALB-8C4FFF?style=for-the-badge&logo=awselasticloadbalancing&logoColor=white">|<img src="https://img.shields.io/badge/ROUTE 53-8C4FFF?style=for-the-badge&logo=amazonroute53&logoColor=white">|
+|Jenkins|AWS|EC2|ALB|Route53| 
+|:--:|:--:|:--:|:--:|:--:|
+|<img src="https://img.shields.io/badge/jenkins-%232C5263.svg?style=for-the-badge&logo=jenkins&logoColor=white">|<img src="https://img.shields.io/badge/AWS-FF9900?style=for-the-badge&logo=amazonwebservices&logoColor=white">|<img src="https://img.shields.io/badge/Elastic Beanstalk-FF9900?style=for-the-badge&logo=&logoColor=white">|<img src="https://img.shields.io/badge/EC2-FF9900?style=for-the-badge&logo=amazonec2&logoColor=white">|<img src="https://img.shields.io/badge/ALB-8C4FFF?style=for-the-badge&logo=awselasticloadbalancing&logoColor=white">|<img src="https://img.shields.io/badge/ROUTE 53-8C4FFF?style=for-the-badge&logo=amazonroute53&logoColor=white">|
 
 <br>
 
@@ -75,17 +75,9 @@
 |:--:|:--:|:--:|:--:|
 |<img src="https://img.shields.io/badge/notion-000000?style=for-the-badge&logo=notion&logoColor=white">|<img src="https://img.shields.io/badge/slack-4A154B?style=for-the-badge&logo=slack&logoColor=white">|<img src="https://img.shields.io/badge/postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white">|<img src="https://img.shields.io/badge/swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=white">|
 
-|IntelliJ IDEA Ultimate|Visual Studio Code|Github|Git Kraken|Sourcetree|
-|:--:|:--:|:--:|:--:|:--:|
-|<img src="https://img.shields.io/badge/IntelliJ IDEA-000000?style=for-the-badge&logo=IntelliJ IDEA&logoColor=white">|<img src="https://img.shields.io/badge/visual studio code-29A7DF?style=for-the-badge&logo=&logoColor=white">|<img src="https://img.shields.io/badge/github-000000?style=for-the-badge&logo=github&logoColor=white">|<img src="https://img.shields.io/badge/sourcetree-0052CC?style=for-the-badge&logo=sourcetree&logoColor=white">|<img src="https://img.shields.io/badge/git kraken-179287?style=for-the-badge&logo=gitkraken&logoColor=white">|
-
-|Heidisql|ERD Cloud|DA#|
+|IntelliJ IDEA Ultimate|Visual Studio Code|Github|
 |:--:|:--:|:--:|
-|<img src="https://img.shields.io/badge/heidisql-85EA2D?style=for-the-badge&logo=&logoColor=white">|<img src="https://img.shields.io/badge/erd cloud-000000?style=for-the-badge&logo=&logoColor=white">|<img src="https://img.shields.io/badge/DA%23-1E8E3E?style=for-the-badge&logo=&logoColor=white">|
-
-|Putty|iterm2|
-|:--:|:--:|
-|<img src="https://img.shields.io/badge/putty-000000?style=for-the-badge&logo=&logoColor=white">|<img src="https://img.shields.io/badge/iterm2-000000?style=for-the-badge&logo=iterm2&logoColor=white">|
+|<img src="https://img.shields.io/badge/IntelliJ IDEA-000000?style=for-the-badge&logo=IntelliJ IDEA&logoColor=white">|<img src="https://img.shields.io/badge/visual studio code-29A7DF?style=for-the-badge&logo=&logoColor=white">|<img src="https://img.shields.io/badge/github-000000?style=for-the-badge&logo=github&logoColor=white">|
 
 <br>
 
