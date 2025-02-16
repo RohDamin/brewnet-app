@@ -1,5 +1,6 @@
 package com.varc.brewnetapp.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -10,14 +11,18 @@ import java.util.List;
 
 @Configuration
 public class WebCORSConfiguration {
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);
-        configuration.setAllowedOrigins(
+        configuration.setAllowedOriginPatterns(
                 List.of(
                         "http://localhost:5173",
-                        "https://brewnet.store",
+                        "http://brewnet.shop",
+                        "https://brewnet.shop",
+                        "http://13.209.24.254",
+                        "http://13.125.47.153:8080",
                         "http://localhost:8080"
                 )
         );
