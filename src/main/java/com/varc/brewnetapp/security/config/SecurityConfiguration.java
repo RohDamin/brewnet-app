@@ -8,6 +8,7 @@ import com.varc.brewnetapp.security.provider.ProviderManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -46,6 +47,7 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)  // csrf 비활성화
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 비활성화
                 .formLogin(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
 
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(new AntPathRequestMatcher("/")).permitAll()
